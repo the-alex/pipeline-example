@@ -4,6 +4,9 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
+random_state = 42
+np.random.seed(random_state)
+
 
 TARGET_LABEL = 'target'
 
