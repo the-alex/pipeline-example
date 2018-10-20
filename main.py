@@ -1,29 +1,38 @@
 #!/usr/bin/env python
+"""
+This script implements a full ML pipeline, from data sourcing to prediction, to
+persistence of the experiment results. Make use of a utility file to hide
+minutia of the implementation.
+"""
 import utils
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, GridSearchCV, ShuffleSplit
+from constants import *
 
 random_state = 42
 np.random.seed(random_state)
 
 
-TARGET_LABEL = 'target'
-
 def main():
     print("-------------------- Fetch Data")
 
-    X, y = utils.fetch_data()
+    data = utils.fetch_data()
+    
+    X = data.drop(TARGET_LABEL, axis=1)
+    y = data[TARGET_LABEL]
 
     print("-------------------- Transform Data")
 
     # Perform some feature transformation, like polynomialize
     X = utils.transform(X)
+    X = X[FEATURES]
 
     # Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
     print("-------------------- Train Model")
+
     cv = ShuffleSplit(n_splits=10, test_size=0.3, random_state=random_state)
 
     clf = GridSearchCV(
@@ -35,7 +44,7 @@ def main():
         refit=True,
         cv=cv
     )
-    clf.fit(X_train, y_train.ravel())
+    clf.fit(X, y)
 
     print("-------------------- Evaluate Model")
 

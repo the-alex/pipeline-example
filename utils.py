@@ -7,19 +7,29 @@ import numpy as np
 from sklearn.datasets import make_classification
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 from sklearn.decomposition import PCA
+from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+from sklearn.pipeline import make_pipeline
+from constants import *
 
 
 def fetch_data():
-    X, y = make_classification(n_samples=2000, n_features=10)
-    return pd.DataFrame(X), pd.Series(y)
+    data = pd.read_csv(DATA_PATH + TRAIN_FILENAME)
+    data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
+    data.dropna(inplace=True)
+    return data
 
 
 def transform(X, transformers=dict()):
-    pca = transformers.get('pca')
-    if not pca:
-        pca = PCA(n_components=3)
-        pca.fit(X)
-    X = pd.concat([X, pd.DataFrame(pca.transform(X))], axis=1)
+    ## Numerical Features
+    ## Datetime Features
+    ## Text Features
+
+    ## Categorical Features
+    X = pd.get_dummies(X, columns=['embarked'])
+    
+    ## Boolean Features
+    X['sex'] = X.sex == 'male'
+
     return X
 
 
