@@ -33,7 +33,7 @@ def main():
 
     print("-------------------- Train Model")
 
-    cv = ShuffleSplit(n_splits=10, test_size=0.3, random_state=random_state)
+    cv = ShuffleSplit(n_splits=10, test_size=0.2, random_state=random_state)
 
     clf = GridSearchCV(
         estimator=RandomForestClassifier(n_jobs=-1),
@@ -44,7 +44,7 @@ def main():
         refit=True,
         cv=cv
     )
-    clf.fit(X, y)
+    clf.fit(X_train, y_train)
 
     print("-------------------- Evaluate Model")
 
