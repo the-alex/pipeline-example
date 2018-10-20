@@ -11,7 +11,7 @@ from sklearn.decomposition import PCA
 
 def fetch_data():
     X, y = make_classification(n_samples=2000, n_features=10)
-    return pd.DataFrame(X), pd.DataFrame(y)
+    return pd.DataFrame(X), pd.Series(y)
 
 
 def transform(X, transformers=dict()):
