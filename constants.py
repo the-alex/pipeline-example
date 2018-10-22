@@ -7,7 +7,12 @@ TARGET_LABEL = 'survived'
 
 # These columns have no business in MY models.
 DROP_COLS = [
-    'passenger_id',
+    'passengerid',
+    'parch',
+    'ticket',
+    'name',
+    'sibsp',
+    'cabin',
 ]
 
 FEATURES = ['sex', 'age', 'fare', 'embarked_C', 'embarked_Q', 'embarked_S']
