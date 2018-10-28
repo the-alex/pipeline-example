@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+RANDOM_STATE = 42
+
 DATA_PATH = './data/'
 TRAIN_FILENAME = 'train.csv'
 
@@ -14,5 +16,3 @@ DROP_COLS = [
     'sibsp',
     'cabin',
 ]
-
-FEATURES = ['sex', 'age', 'fare', 'embarked_C', 'embarked_Q', 'embarked_S']

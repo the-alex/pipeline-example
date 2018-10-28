@@ -7,53 +7,75 @@ minutia of the implementation.
 import utils
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split, GridSearchCV, ShuffleSplit
-from constants import *
+from sklearn.svm import SVC, NuSVC
+from sklearn.model_selection import train_test_split, GridSearchCV, KFold
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.impute import SimpleImputer
+from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+import constants as c
+from reporting import make_report, pretty_print_report
 
-random_state = 42
-np.random.seed(random_state)
+np.random.seed(c.RANDOM_STATE)
 
 
 def main():
     print("-------------------- Fetch Data")
 
     data = utils.fetch_data()
+    X = data.drop(c.DROP_COLS + [c.TARGET_LABEL], axis=1)
+    y = data[c.TARGET_LABEL]
     
-    X = data.drop(TARGET_LABEL, axis=1)
-    y = data[TARGET_LABEL]
 
-    print("-------------------- Transform Data")
+    print("-------------------- Transform & Fit")
+    
+    # Setup feature transformations
+    numerical_features = ['age', 'fare']
+    numerical_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='median')),
+        ('poly_maker', PolynomialFeatures(2, include_bias=False)),
+    ])
 
-    # Perform some feature transformation, like polynomialize
-    X = utils.transform(X)
-    X = X[FEATURES]
+    # Categoricals
+    categorical_features = ['sex', 'pclass', 'embarked']
+    categorical_transformer = Pipeline(steps=[
+        ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
+        ('onehot', OneHotEncoder(handle_unknown='ignore')),
+    ])
+
+    # Make the preprocessor
+    preprocessor = ColumnTransformer(transformers=[
+        ('numerical', numerical_transformer, numerical_features),
+        ('categorical', categorical_transformer, categorical_features)
+    ])
+    
+    # Compose preprocessor and classifier
+    pipeline = Pipeline([
+        ('preprocessor', preprocessor),
+        ('classifier', RandomForestClassifier(n_jobs=-1))
+    ])
 
     # Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
-    print("-------------------- Train Model")
-
-    cv = ShuffleSplit(n_splits=10, test_size=0.2, random_state=random_state)
-
-    clf = GridSearchCV(
-        estimator=RandomForestClassifier(n_jobs=-1),
+    grid_searcher = GridSearchCV(
+        estimator=pipeline,
         param_grid=dict(
-            n_estimators=[10, 100, 250],
-            max_depth=[3, 7, 10],
+            preprocessor__numerical__imputer__strategy=['median', 'mean'],
+            classifier__n_estimators=[10, 100, 250],
+            classifier__max_depth=[3, 7, 10],
         ),
         refit=True,
-        cv=cv
     )
-    clf.fit(X_train, y_train)
+    grid_searcher.fit(X_train, y_train)
 
     print("-------------------- Evaluate Model")
 
-    y_hat = clf.predict(X_test)[:, np.newaxis]
-    y_probs = clf.predict_proba(X_test)[:, 1]
+    y_hat = grid_searcher.predict(X_test)[:, np.newaxis]
+    y_probs = grid_searcher.predict_proba(X_test)[:, 1]
 
-    report = utils.make_report(y_hat, y_probs, y_test)
-    print(utils.pretty_print_report(report))
-
+    report = make_report(y_hat, y_probs, y_test)
+    print(pretty_print_report(report))
 
 if __name__ == '__main__':
     main()

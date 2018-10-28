@@ -4,47 +4,35 @@ model scripts.
 """
 import pandas as pd
 import numpy as np
-from sklearn.datasets import make_classification
-from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
-from sklearn.decomposition import PCA
-from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
-from sklearn.pipeline import make_pipeline
-from constants import *
+import constants as c
 
+np.random.seed(c.RANDOM_STATE)
 
 def fetch_data():
-    data = pd.read_csv(DATA_PATH + TRAIN_FILENAME)
+    data = pd.read_csv(c.DATA_PATH + c.TRAIN_FILENAME)
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
-    data.dropna(inplace=True)
     return data
 
 
-def transform(X, transformers=dict()):
-    ## Numerical Features
-    ## Datetime Features
-    ## Text Features
+def run_classifiers(clfs, X, y, cv):
+    """Simple experiment which returns the result of a cross validation
+    strategy, provided as an argument."""
+    reports = dict()
 
-    ## Categorical Features
-    X = pd.get_dummies(X, columns=['embarked'])
-    
-    ## Boolean Features
-    X['sex'] = X.sex == 'male'
+    for name, clf in clfs:
+        reports[name] = list()
 
-    return X
+        for train_inds, test_inds in cv.split(X):
+            X_train = X[train_inds]
+            X_test = X[test_inds]
+            y_train, y_test = y[train_inds], y[test_inds]
 
+            clf.fit(X_train, y_train)
 
-def make_report(y_pred, y_probs, y_true):
-    report = dict(
-        accuracy=accuracy_score(y_true, y_pred),
-        auroc=roc_auc_score(y_true, y_probs),
-        f1_score=f1_score(y_true, y_pred),
-    )
-    return report
+            y_hat = clf.predict(X_test)
+            y_hat_probs = clf.predict_proba(X_test)
 
+            report[name].append(make_report(y_hat, y_hat_probs, y_test))
 
-def pretty_print_report(report):
-    return """
-Accuracy: {accuracy}
-AUROC   : {auroc}
-F1      : {f1_score}
-""".format(**report)
+    return reports
+
