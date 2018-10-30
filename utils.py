@@ -5,11 +5,17 @@ model scripts.
 import pandas as pd
 import numpy as np
 import constants as c
+from sklearn.externals import joblib
 
 np.random.seed(c.RANDOM_STATE)
 
-def fetch_data():
-    data = pd.read_csv(c.DATA_PATH + c.TRAIN_FILENAME)
+def fetch_data(validation=False):
+    if validation:
+        data = pd.read_csv(c.DATA_PATH + c.TEST_FILENAME)
+    else:
+        data = pd.read_csv(c.DATA_PATH + c.TRAIN_FILENAME)
+
+    # Light preprocessing on column names
     data.columns = data.columns.str.strip().str.lower().str.replace(' ', '_').str.replace('(', '').str.replace(')', '')
     return data
 

@@ -4,6 +4,7 @@ RANDOM_STATE = 42
 
 DATA_PATH = './data/'
 TRAIN_FILENAME = 'train.csv'
+TEST_FILENAME = 'test.csv'
 
 TARGET_LABEL = 'survived'
 
