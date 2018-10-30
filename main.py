@@ -78,6 +78,14 @@ def main():
     report = make_report(y_hat, y_probs, y_test)
     print(pretty_print_report(report))
 
+    experiment_info = {
+        'random_state': c.RANDOM_STATE,
+        'model': grid_searcher,
+        'data': data,
+        'report': report,
+    }
+
+    utils.persist_experiment(experiment_info)
     
 if __name__ == '__main__':
     main()

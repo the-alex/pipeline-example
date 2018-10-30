@@ -42,3 +42,20 @@ def run_classifiers(clfs, X, y, cv):
 
     return reports
 
+
+def persist_experiment(experiment_info):
+    # Persist the trained pipeline
+    joblib.dump(experiment_info, 'experiment.joblib')
+
+
+def predict_on_new_data(experiment_info_filename='experiment.joblib'):
+    """Loads an experiment from disk at the provided filename"""
+    exp_info = joblib.load(experiment_info_filename)
+
+    # load test data from disk
+    test_df = fetch_data(validation=True)
+    X_test = test_df.drop(c.DROP_COLS, axis=1)
+    clf = exp_info['model']
+    y_hat = clf.predict(X_test)
+    y_hat_probs = clf.predict_proba(X_test)[:, 1]
+    return y_hat, y_hat_probs
