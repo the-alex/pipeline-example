@@ -1,3 +1,6 @@
 #+TITLE: README
 
 * Fun Stuff
+Download dependencies using your least hated python package manager and run
+~python main.py~. Be sure to download the dummy data. I have not included a
+script to fetch it, so you gotta get it yourself.
