@@ -25,10 +25,10 @@ def main():
     data = utils.fetch_data()
     X = data.drop(c.DROP_COLS + [c.TARGET_LABEL], axis=1)
     y = data[c.TARGET_LABEL]
-    
+
 
     print("-------------------- Transform & Fit")
-    
+
     # Setup feature transformations
     numerical_features = ['age', 'fare']
     numerical_transformer = Pipeline(steps=[
@@ -48,7 +48,7 @@ def main():
         ('numerical', numerical_transformer, numerical_features),
         ('categorical', categorical_transformer, categorical_features)
     ])
-    
+
     # Compose preprocessor and classifier
     pipeline = Pipeline([
         ('preprocessor', preprocessor),
@@ -65,6 +65,7 @@ def main():
             classifier__n_estimators=[10, 100, 250],
             classifier__max_depth=[3, 7, 10],
         ),
+        cv=3,
         refit=True,
     )
     grid_searcher.fit(X_train, y_train)
@@ -77,5 +78,6 @@ def main():
     report = make_report(y_hat, y_probs, y_test)
     print(pretty_print_report(report))
 
+    
 if __name__ == '__main__':
     main()
