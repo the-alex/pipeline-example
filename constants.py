@@ -15,3 +15,5 @@ DROP_COLS = [
     'name',
     'cabin',
 ]
+
+CACHE_DIR = './cache/'

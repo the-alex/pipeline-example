@@ -36,14 +36,14 @@ def main():
         ('imputer', SimpleImputer()),
         ('poly_maker', PolynomialFeatures(include_bias=False)),
         ('PCA', PCA())
-    ])
+    ], memory=c.CACHE_DIR)
 
     # Categoricals
     categorical_features = ['sex', 'pclass', 'embarked', 'parch']
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
         ('onehot', OneHotEncoder(handle_unknown='ignore')),
-    ])
+    ], memory=c.CACHE_DIR)
 
     # Make the preprocessor
     preprocessor = ColumnTransformer(transformers=[
