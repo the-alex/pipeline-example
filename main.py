@@ -6,12 +6,13 @@ minutia of the implementation.
 """
 import utils
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.svm import SVC, NuSVC
 from sklearn.model_selection import train_test_split, GridSearchCV, KFold
 from sklearn.pipeline import make_pipeline, Pipeline
 from sklearn.impute import SimpleImputer
 from sklearn.preprocessing import PolynomialFeatures, OneHotEncoder
+from sklearn.decomposition import PCA
 from sklearn.compose import ColumnTransformer
 import constants as c
 from reporting import make_report, pretty_print_report
@@ -30,14 +31,15 @@ def main():
     print("-------------------- Transform & Fit")
 
     # Setup feature transformations
-    numerical_features = ['age', 'fare']
+    numerical_features = ['age', 'fare', 'sibsp']
     numerical_transformer = Pipeline(steps=[
-        ('imputer', SimpleImputer(strategy='median')),
-        ('poly_maker', PolynomialFeatures(2, include_bias=False)),
+        ('imputer', SimpleImputer()),
+        ('poly_maker', PolynomialFeatures(include_bias=False)),
+        ('PCA', PCA())
     ])
 
     # Categoricals
-    categorical_features = ['sex', 'pclass', 'embarked']
+    categorical_features = ['sex', 'pclass', 'embarked', 'parch']
     categorical_transformer = Pipeline(steps=[
         ('imputer', SimpleImputer(strategy='constant', fill_value='missing')),
         ('onehot', OneHotEncoder(handle_unknown='ignore')),
@@ -61,12 +63,16 @@ def main():
     grid_searcher = GridSearchCV(
         estimator=pipeline,
         param_grid=dict(
+            preprocessor__numerical__poly_maker__degree=[2, 3],
             preprocessor__numerical__imputer__strategy=['median', 'mean'],
+            preprocessor__numerical__PCA__n_components=[3, 5, 7],
             classifier__n_estimators=[10, 100, 250],
-            classifier__max_depth=[3, 7, 10],
+            classifier=[RandomForestClassifier(n_jobs=-1), GradientBoostingClassifier()],
+            classifier__random_state=[c.RANDOM_STATE],
         ),
         cv=3,
         refit=True,
+        n_jobs=2,
     )
     grid_searcher.fit(X_train, y_train)
 
