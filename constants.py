@@ -13,7 +13,7 @@ DROP_COLS = [
     'passengerid',
     'ticket',
     'name',
-    'cabin',
+    # 'cabin',
 ]
 
 CACHE_DIR = './cache/'

@@ -48,6 +48,10 @@ def persist_experiment(experiment_info):
     joblib.dump(experiment_info, 'experiment.joblib')
 
 
+def load_experiment(path="experiment.joblib"):
+    return joblib.load(path)
+
+
 def predict_on_new_data(experiment_info_filename='experiment.joblib'):
     """Loads an experiment from disk at the provided filename"""
     exp_info = joblib.load(experiment_info_filename)
@@ -59,3 +63,19 @@ def predict_on_new_data(experiment_info_filename='experiment.joblib'):
     y_hat = clf.predict(X_test)
     y_hat_probs = clf.predict_proba(X_test)[:, 1]
     return y_hat, y_hat_probs
+
+
+def get_first_char(df):
+    df.cabin = df.cabin.fillna('m').str.slice(0, 1)
+    return df
+    df = df.apply(pd.Series.fillna, args=('m'))
+    df = df.apply(pd.Series.str.slice, args=(0, 1))
+    return df
+
+def get_feature_importances(clf, data):
+    fi = clf.feature_importances_
+    feature_names = data.columns
+    
+    indicies = fi.argmax()[::-1]
+
+    return feature_names[indicies]
