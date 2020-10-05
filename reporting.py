@@ -5,6 +5,7 @@ A module for reporting experimental results.
 from sklearn.externals import joblib
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
+
 def make_report(y_pred, y_probs, y_true):
     report = dict(
         n=len(y_true),
@@ -23,4 +24,6 @@ AUROC   : {auroc}
 F1      : {f1_score}
 N       : {n}
 class % : {class_mean}
-""".format(**report)
+""".format(
+        **report
+    )
