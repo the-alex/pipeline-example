@@ -5,7 +5,7 @@ model scripts.
 import pandas as pd
 import numpy as np
 import constants as c
-from sklearn.externals import joblib
+import joblib
 
 np.random.seed(c.RANDOM_STATE)
 

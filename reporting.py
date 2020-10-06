@@ -2,7 +2,7 @@
 """
 A module for reporting experimental results.
 """
-from sklearn.externals import joblib
+import joblib
 from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
 
 

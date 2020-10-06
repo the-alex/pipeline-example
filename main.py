@@ -4,6 +4,7 @@ This script implements a full ML pipeline, from data sourcing to prediction, to
 persistence of the experiment results. Make use of a utility file to hide
 minutia of the implementation.
 """
+
 import utils
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
@@ -16,6 +17,8 @@ from sklearn.decomposition import PCA
 from sklearn.compose import ColumnTransformer
 import constants as c
 from reporting import make_report, pretty_print_report
+
+from pprint import pprint
 
 np.random.seed(c.RANDOM_STATE)
 
@@ -69,6 +72,8 @@ def main():
     # Split
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
 
+    print("-------------------- Finding Performant Parameters")
+
     grid_searcher = GridSearchCV(
         estimator=pipeline,
         param_grid=dict(
@@ -87,6 +92,8 @@ def main():
         n_jobs=2,
     )
     grid_searcher.fit(X_train, y_train)
+
+    pprint(grid_searcher.best_params_)
 
     print("-------------------- Evaluate Model")
 
